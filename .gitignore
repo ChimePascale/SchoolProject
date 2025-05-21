@@ -1,0 +1,7 @@
+# Ignore node modules and environment files
+**/node_modules/
+*.env
+dist/
+build/
+.vscode/
+.DS_Store
