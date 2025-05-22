@@ -69,6 +69,7 @@
       display: flex;
       gap: 1rem;
       width: 100%;
+      margin-top: 0.5rem;
       
       button {
         background-color: #007bff;
@@ -81,20 +82,24 @@
         font-weight: 500;
         flex: 1;
         transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
         &:disabled {
           background-color: #e9ecef;
           color: #adb5bd;
           cursor: not-allowed;
+          box-shadow: none;
         }
 
         &:hover:not(:disabled) {
           background-color: #0056b3;
           transform: translateY(-1px);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
         }
 
         &:active:not(:disabled) {
           transform: translateY(0);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         &.cancel-button {
@@ -192,10 +197,19 @@
               
               &.edit-button {
                 color: #adb5bd;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 
                 &:hover {
                   color: #007bff;
                   background-color: rgba(0, 123, 255, 0.1);
+                  transform: translateY(-1px);
+                }
+                
+                &:active {
+                  transform: translateY(0);
                 }
               }
 

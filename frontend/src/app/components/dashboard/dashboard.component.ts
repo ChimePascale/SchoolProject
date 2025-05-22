@@ -11,7 +11,7 @@ import { TaskService, Task } from '../../services/task.service';
   imports: [CommonModule, FormsModule]
 })
 export class DashboardComponent implements OnInit {
-  @ViewChild('taskForm') taskForm: NgForm;
+  @ViewChild('taskForm', { static: false }) taskForm: NgForm;
   
   tasks: Task[] = [];
   newTask: Omit<Task, '_id'> = {
@@ -118,16 +118,20 @@ export class DashboardComponent implements OnInit {
   editTask(task: Task): void {
     this.isEditing = true;
     this.editingTaskId = task._id;
-    this.newTask = {
-      title: task.title,
-      description: task.description,
-      completed: task.completed
-    };
-    this.formTitle = 'Edit Task';
-    this.submitButtonText = 'Update Task';
     
-    // Scroll to the form
-    document.querySelector('.task-form')?.scrollIntoView({ behavior: 'smooth' });
+    // Important: Set the form values after a brief timeout to ensure Angular's change detection catches it
+    setTimeout(() => {
+      this.newTask = {
+        title: task.title,
+        description: task.description,
+        completed: task.completed
+      };
+      this.formTitle = 'Edit Task';
+      this.submitButtonText = 'Update Task';
+      
+      // Scroll to the form
+      document.querySelector('.task-form')?.scrollIntoView({ behavior: 'smooth' });
+    }, 0);
   }
 
   cancelEdit(): void {
@@ -140,8 +144,11 @@ export class DashboardComponent implements OnInit {
     this.newTask = { title: '', description: '', completed: false };
     this.formTitle = 'Add New Task';
     this.submitButtonText = 'Add Task';
+    // Don't call resetForm() on the form as it will clear our newTask model
+    // Instead, we manually reset the form's state
     if (this.taskForm) {
-      this.taskForm.resetForm();
+      this.taskForm.form.markAsPristine();
+      this.taskForm.form.markAsUntouched();
     }
   }
 }
