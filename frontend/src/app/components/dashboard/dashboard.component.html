@@ -1,6 +1,6 @@
 <div class="dashboard-container">
   <div class="task-form">
-    <h2>Add New Task</h2>
+    <h2>{{ formTitle }}</h2>
     <form (ngSubmit)="createTask()" #taskForm="ngForm">
       <div class="form-group">
         <input
@@ -20,7 +20,10 @@
         ></textarea>
       </div>
       <div class="error" *ngIf="error">{{ error }}</div>
-      <button type="submit" [disabled]="!taskForm.form.valid">Add Task</button>
+      <div class="form-actions">
+        <button type="submit" [disabled]="!taskForm.form.valid">{{ submitButtonText }}</button>
+        <button type="button" class="cancel-button" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+      </div>
     </form>
   </div>
 
@@ -35,10 +38,14 @@
               class="toggle-button"
               (click)="toggleComplete(task)"
               [class.completed]="task.completed"
+              title="{{ task.completed ? 'Mark as incomplete' : 'Mark as complete' }}"
             >
               {{ task.completed ? '✓' : '○' }}
             </button>
-            <button class="delete-button" (click)="deleteTask(task._id!)">
+            <button class="edit-button" (click)="editTask(task)" title="Edit task">
+              ✎
+            </button>
+            <button class="delete-button" (click)="deleteTask(task._id!)" title="Delete task">
               ✕
             </button>
           </div>

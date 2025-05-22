@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { TaskService, Task } from '../../services/task.service';
 
 @Component({
@@ -11,6 +11,8 @@ import { TaskService, Task } from '../../services/task.service';
   imports: [CommonModule, FormsModule]
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild('taskForm') taskForm: NgForm;
+  
   tasks: Task[] = [];
   newTask: Omit<Task, '_id'> = {
     title: '',
@@ -18,6 +20,10 @@ export class DashboardComponent implements OnInit {
     completed: false
   };
   error = '';
+  isEditing = false;
+  editingTaskId: string | null = null;
+  formTitle = 'Add New Task';
+  submitButtonText = 'Add Task';
 
   constructor(private taskService: TaskService) {}
 
@@ -43,17 +49,38 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    this.taskService.createTask(this.newTask).subscribe({
-      next: () => {
-        this.newTask = { title: '', description: '', completed: false };
-        this.loadTasks();
-        this.error = '';
-      },
-      error: (err) => {
-        this.error = 'Failed to create task';
-        console.error(err);
-      }
-    });
+    if (this.isEditing && this.editingTaskId) {
+      // Update existing task
+      const updatedTask: Task = {
+        _id: this.editingTaskId,
+        ...this.newTask
+      };
+      
+      this.taskService.updateTask(this.editingTaskId, updatedTask).subscribe({
+        next: () => {
+          this.resetForm();
+          this.loadTasks();
+          this.error = '';
+        },
+        error: (err) => {
+          this.error = 'Failed to update task';
+          console.error(err);
+        }
+      });
+    } else {
+      // Create new task
+      this.taskService.createTask(this.newTask).subscribe({
+        next: () => {
+          this.resetForm();
+          this.loadTasks();
+          this.error = '';
+        },
+        error: (err) => {
+          this.error = 'Failed to create task';
+          console.error(err);
+        }
+      });
+    }
   }
 
   updateTask(task: Task): void {
@@ -86,5 +113,35 @@ export class DashboardComponent implements OnInit {
 
   toggleComplete(task: Task): void {
     this.updateTask({ ...task, completed: !task.completed });
+  }
+
+  editTask(task: Task): void {
+    this.isEditing = true;
+    this.editingTaskId = task._id;
+    this.newTask = {
+      title: task.title,
+      description: task.description,
+      completed: task.completed
+    };
+    this.formTitle = 'Edit Task';
+    this.submitButtonText = 'Update Task';
+    
+    // Scroll to the form
+    document.querySelector('.task-form')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  cancelEdit(): void {
+    this.resetForm();
+  }
+
+  resetForm(): void {
+    this.isEditing = false;
+    this.editingTaskId = null;
+    this.newTask = { title: '', description: '', completed: false };
+    this.formTitle = 'Add New Task';
+    this.submitButtonText = 'Add Task';
+    if (this.taskForm) {
+      this.taskForm.resetForm();
+    }
   }
 }
