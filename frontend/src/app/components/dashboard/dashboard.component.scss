@@ -3,6 +3,10 @@
   margin: 2rem auto;
   padding: 0 1rem;
   animation: fadeIn 0.3s ease-in;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
@@ -10,22 +14,26 @@
   }
 
   .task-form {
-    background-color: #fff;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     margin-bottom: 2rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    color: white;
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     }
 
     h2 {
       margin-bottom: 1.5rem;
-      color: #2c3e50;
-      font-weight: 600;
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 1.8rem;
     }
 
     .form-group {
@@ -34,20 +42,24 @@
       input,
       textarea {
         width: 100%;
-        padding: 0.875rem;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
+        padding: 1rem;
+        border: none;
+        border-radius: 10px;
         font-size: 1rem;
-        transition: all 0.2s;
+        transition: all 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), inset 0 2px 3px rgba(255, 255, 255, 0.1);
+        background-color: rgba(255, 255, 255, 0.9);
 
         &:focus {
           outline: none;
-          border-color: #007bff;
-          box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.2);
+          transform: translateY(-2px);
+          background-color: white;
         }
 
         &::placeholder {
-          color: #adb5bd;
+          color: #8a94a6;
+          opacity: 0.8;
         }
       }
     }
@@ -69,44 +81,46 @@
       display: flex;
       gap: 1rem;
       width: 100%;
-      margin-top: 0.5rem;
+      margin-top: 1.5rem;
       
       button {
-        background-color: #007bff;
+        background: linear-gradient(to right, #ff8a00, #ff5252);
         color: white;
         border: none;
-        padding: 0.875rem 1.5rem;
-        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        border-radius: 50px;
         cursor: pointer;
         font-size: 1rem;
-        font-weight: 500;
+        font-weight: 600;
         flex: 1;
-        transition: all 0.2s;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(255, 82, 82, 0.4);
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
 
         &:disabled {
-          background-color: #e9ecef;
-          color: #adb5bd;
+          background: linear-gradient(to right, #d3d3d3, #a9a9a9);
+          color: #f5f5f5;
           cursor: not-allowed;
           box-shadow: none;
         }
 
         &:hover:not(:disabled) {
-          background-color: #0056b3;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(255, 82, 82, 0.5);
         }
 
         &:active:not(:disabled) {
-          transform: translateY(0);
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 10px rgba(255, 82, 82, 0.4);
         }
         
         &.cancel-button {
-          background-color: #6c757d;
+          background: linear-gradient(to right, #757f9a, #d7dde8);
+          box-shadow: 0 4px 15px rgba(117, 127, 154, 0.4);
           
           &:hover:not(:disabled) {
-            background-color: #5a6268;
+            box-shadow: 0 8px 25px rgba(117, 127, 154, 0.5);
           }
         }
       }
@@ -117,7 +131,21 @@
     h2 {
       margin-bottom: 1.5rem;
       color: #2c3e50;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 1.8rem;
+      position: relative;
+      padding-bottom: 0.5rem;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 4px;
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        border-radius: 2px;
+      }
     }
 
     .tasks-container {
@@ -127,20 +155,36 @@
 
       .task-card {
         background-color: #fff;
-        border-radius: 12px;
+        border-radius: 15px;
         padding: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s;
-        border: 1px solid #e9ecef;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        
+        &:before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 5px;
+          height: 100%;
+          background: linear-gradient(to bottom, #11998e, #38ef7d);
+          border-radius: 5px 0 0 5px;
+        }
 
         &:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+          transform: translateY(-5px) scale(1.02);
+          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
 
         &.completed {
           background-color: #f8f9fa;
-          border-color: #e9ecef;
+          
+          &:before {
+            background: linear-gradient(to bottom, #8e9eab, #eef2f3);
+          }
 
           h3 {
             text-decoration: line-through;
@@ -149,6 +193,16 @@
 
           .task-description {
             color: #adb5bd;
+          }
+          
+          &:after {
+            content: '✓';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #38ef7d;
+            opacity: 0.5;
           }
         }
 
@@ -184,14 +238,20 @@
 
               &.toggle-button {
                 color: #adb5bd;
+                background-color: #f8f9fa;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
 
                 &.completed {
-                  color: #28a745;
+                  color: white;
+                  background-color: #38ef7d;
                 }
 
                 &:hover {
-                  color: #28a745;
-                  background-color: rgba(40, 167, 69, 0.1);
+                  color: white;
+                  background-color: #28a745;
+                  transform: rotate(15deg);
                 }
               }
               
@@ -201,11 +261,15 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                background-color: #f8f9fa;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
                 
                 &:hover {
-                  color: #007bff;
-                  background-color: rgba(0, 123, 255, 0.1);
-                  transform: translateY(-1px);
+                  color: white;
+                  background-color: #2575fc;
+                  transform: translateY(-1px) rotate(15deg);
                 }
                 
                 &:active {
@@ -215,10 +279,15 @@
 
               &.delete-button {
                 color: #adb5bd;
+                background-color: #f8f9fa;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
 
                 &:hover {
-                  color: #dc3545;
-                  background-color: rgba(220, 53, 69, 0.1);
+                  color: white;
+                  background-color: #ff5252;
+                  transform: rotate(90deg);
                 }
               }
             }
