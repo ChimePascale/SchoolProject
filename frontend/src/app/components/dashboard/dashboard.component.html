@@ -28,56 +28,22 @@
     <h2>Your Tasks</h2>
     <div class="tasks-container">
       <div *ngFor="let task of tasks" class="task-card" [class.completed]="task.completed">
-        <!-- Normal View Mode -->
-        <div *ngIf="editingTask?._id !== task._id">
-          <div class="task-header">
-            <h3>{{ task.title }}</h3>
-            <div class="task-actions">
-              <button
-                class="edit-button"
-                (click)="startEditing(task)"
-              >
-                ✎
-              </button>
-              <button
-                class="toggle-button"
-                (click)="toggleComplete(task)"
-                [class.completed]="task.completed"
-              >
-                {{ task.completed ? '✓' : '○' }}
-              </button>
-              <button class="delete-button" (click)="deleteTask(task._id!)">
-                ✕
-              </button>
-            </div>
-          </div>
-          <p class="task-description">{{ task.description }}</p>
-        </div>
-
-        <!-- Edit Mode -->
-        <div *ngIf="editingTask?._id === task._id" class="edit-mode">
-          <div class="form-group">
-            <input
-              type="text"
-              name="editTitle"
-              [(ngModel)]="editForm.title"
-              placeholder="Task Title"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <textarea
-              name="editDescription"
-              [(ngModel)]="editForm.description"
-              placeholder="Task Description"
-              rows="3"
-            ></textarea>
-          </div>
-          <div class="edit-actions">
-            <button class="save-button" (click)="saveTask()">Save</button>
-            <button class="cancel-button" (click)="cancelEditing()">Cancel</button>
+        <div class="task-header">
+          <h3>{{ task.title }}</h3>
+          <div class="task-actions">
+            <button
+              class="toggle-button"
+              (click)="toggleComplete(task)"
+              [class.completed]="task.completed"
+            >
+              {{ task.completed ? '✓' : '○' }}
+            </button>
+            <button class="delete-button" (click)="deleteTask(task._id!)">
+              ✕
+            </button>
           </div>
         </div>
+        <p class="task-description">{{ task.description }}</p>
       </div>
       <div *ngIf="tasks.length === 0" class="no-tasks">
         No tasks yet. Add your first task above!

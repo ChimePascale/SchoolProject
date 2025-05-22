@@ -18,8 +18,6 @@ export class DashboardComponent implements OnInit {
     completed: false
   };
   error = '';
-  editingTask: Task | null = null;
-  editForm: Partial<Task> = {};
 
   constructor(private taskService: TaskService) {}
 
@@ -88,35 +86,5 @@ export class DashboardComponent implements OnInit {
 
   toggleComplete(task: Task): void {
     this.updateTask({ ...task, completed: !task.completed });
-  }
-
-  startEditing(task: Task): void {
-    this.editingTask = task;
-    this.editForm = { ...task };
-  }
-
-  cancelEditing(): void {
-    this.editingTask = null;
-    this.editForm = {};
-  }
-
-  saveTask(): void {
-    if (!this.editingTask || !this.editForm.title?.trim()) {
-      this.error = 'Title is required';
-      return;
-    }
-
-    this.taskService.updateTask(this.editingTask._id!, this.editForm).subscribe({
-      next: () => {
-        this.loadTasks();
-        this.editingTask = null;
-        this.editForm = {};
-        this.error = '';
-      },
-      error: (err) => {
-        this.error = 'Failed to update task';
-        console.error(err);
-      }
-    });
   }
 }
