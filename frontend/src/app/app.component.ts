@@ -11,6 +11,8 @@ import { AuthService } from './services/auth.service';
   imports: [RouterModule, CommonModule]
 })
 export class AppComponent {
+  title = 'frontend';
+  
   constructor(private authService: AuthService) {}
 
   get isLoggedIn(): boolean {
