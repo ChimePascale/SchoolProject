@@ -1,19 +1,23 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TaskService, Task } from '../../services/task.service';
+import { finalize } from 'rxjs/operators';
+
+type FilterType = 'all' | 'active' | 'completed';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, DatePipe]
 })
 export class DashboardComponent implements OnInit {
   @ViewChild('taskForm', { static: false }) taskForm: NgForm;
   
   tasks: Task[] = [];
+  filteredTasks: Task[] = [];
   newTask: Omit<Task, '_id'> = {
     title: '',
     description: '',
@@ -24,6 +28,11 @@ export class DashboardComponent implements OnInit {
   editingTaskId: string | null = null;
   formTitle = 'Add New Task';
   submitButtonText = 'Add Task';
+  isLoading = false;
+  showForm = false;
+  currentFilter: FilterType = 'all';
+  showDeleteModal = false;
+  taskToDelete: Task | null = null;
 
   constructor(private taskService: TaskService) {}
 
@@ -32,9 +41,15 @@ export class DashboardComponent implements OnInit {
   }
 
   loadTasks(): void {
-    this.taskService.getTasks().subscribe({
+    this.isLoading = true;
+    this.error = '';
+    
+    this.taskService.getTasks().pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
       next: (tasks) => {
         this.tasks = tasks;
+        this.applyFilter();
       },
       error: (err) => {
         this.error = 'Failed to load tasks';
@@ -49,6 +64,9 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    this.error = '';
+    this.isLoading = true;
+
     if (this.isEditing && this.editingTaskId) {
       // Update existing task
       const updatedTask: Task = {
@@ -56,27 +74,29 @@ export class DashboardComponent implements OnInit {
         ...this.newTask
       };
       
-      this.taskService.updateTask(this.editingTaskId, updatedTask).subscribe({
+      this.taskService.updateTask(this.editingTaskId, updatedTask).pipe(
+        finalize(() => this.isLoading = false)
+      ).subscribe({
         next: () => {
           this.resetForm();
           this.loadTasks();
-          this.error = '';
         },
         error: (err) => {
-          this.error = 'Failed to update task';
+          this.error = 'Failed to update task: ' + (err.message || 'Unknown error');
           console.error(err);
         }
       });
     } else {
       // Create new task
-      this.taskService.createTask(this.newTask).subscribe({
+      this.taskService.createTask(this.newTask).pipe(
+        finalize(() => this.isLoading = false)
+      ).subscribe({
         next: () => {
           this.resetForm();
           this.loadTasks();
-          this.error = '';
         },
         error: (err) => {
-          this.error = 'Failed to create task';
+          this.error = 'Failed to create task: ' + (err.message || 'Unknown error');
           console.error(err);
         }
       });
@@ -84,31 +104,49 @@ export class DashboardComponent implements OnInit {
   }
 
   updateTask(task: Task): void {
-    this.taskService.updateTask(task._id!, task).subscribe({
+    this.isLoading = true;
+    this.error = '';
+    
+    this.taskService.updateTask(task._id!, task).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
       next: () => {
         this.loadTasks();
-        this.error = '';
       },
       error: (err) => {
-        this.error = 'Failed to update task';
+        this.error = 'Failed to update task: ' + (err.message || 'Unknown error');
         console.error(err);
       }
     });
   }
 
+  confirmDelete(task: Task): void {
+    this.taskToDelete = task;
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.taskToDelete = null;
+    this.showDeleteModal = false;
+  }
+
   deleteTask(taskId: string): void {
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskService.deleteTask(taskId).subscribe({
-        next: () => {
-          this.loadTasks();
-          this.error = '';
-        },
-        error: (err) => {
-          this.error = 'Failed to delete task';
-          console.error(err);
-        }
-      });
-    }
+    this.isLoading = true;
+    this.error = '';
+    this.showDeleteModal = false;
+    
+    this.taskService.deleteTask(taskId).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: () => {
+        this.loadTasks();
+        this.taskToDelete = null;
+      },
+      error: (err) => {
+        this.error = 'Failed to delete task: ' + (err.message || 'Unknown error');
+        console.error(err);
+      }
+    });
   }
 
   toggleComplete(task: Task): void {
@@ -118,24 +156,54 @@ export class DashboardComponent implements OnInit {
   editTask(task: Task): void {
     this.isEditing = true;
     this.editingTaskId = task._id;
+    this.showForm = true;
     
-    // Important: Set the form values after a brief timeout to ensure Angular's change detection catches it
+    // Set the form values
+    this.newTask = {
+      title: task.title,
+      description: task.description,
+      completed: task.completed
+    };
+    this.formTitle = 'Edit Task';
+    this.submitButtonText = 'Update Task';
+    
+    // Scroll to the form
     setTimeout(() => {
-      this.newTask = {
-        title: task.title,
-        description: task.description,
-        completed: task.completed
-      };
-      this.formTitle = 'Edit Task';
-      this.submitButtonText = 'Update Task';
-      
-      // Scroll to the form
       document.querySelector('.task-form')?.scrollIntoView({ behavior: 'smooth' });
     }, 0);
   }
 
+  toggleForm(): void {
+    this.showForm = !this.showForm;
+    if (this.showForm) {
+      this.resetForm();
+      setTimeout(() => {
+        document.querySelector('.task-form')?.scrollIntoView({ behavior: 'smooth' });
+      }, 0);
+    }
+  }
+
   cancelEdit(): void {
     this.resetForm();
+    this.showForm = false;
+  }
+
+  filterTasks(filter: FilterType): void {
+    this.currentFilter = filter;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    switch (this.currentFilter) {
+      case 'active':
+        this.filteredTasks = this.tasks.filter(task => !task.completed);
+        break;
+      case 'completed':
+        this.filteredTasks = this.tasks.filter(task => task.completed);
+        break;
+      default:
+        this.filteredTasks = [...this.tasks];
+    }
   }
 
   resetForm(): void {
@@ -144,8 +212,9 @@ export class DashboardComponent implements OnInit {
     this.newTask = { title: '', description: '', completed: false };
     this.formTitle = 'Add New Task';
     this.submitButtonText = 'Add Task';
-    // Don't call resetForm() on the form as it will clear our newTask model
-    // Instead, we manually reset the form's state
+    this.error = '';
+    
+    // Reset form state if it exists
     if (this.taskForm) {
       this.taskForm.form.markAsPristine();
       this.taskForm.form.markAsUntouched();

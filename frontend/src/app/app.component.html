@@ -1,11 +1,16 @@
 <nav class="app-nav">
-  <ng-container *ngIf="!isLoggedIn">
-    <a routerLink="/login" routerLinkActive="active">Login</a>
-    <a routerLink="/register" routerLinkActive="active">Register</a>
-  </ng-container>
-  <ng-container *ngIf="isLoggedIn">
-    <a routerLink="/tasks" routerLinkActive="active">My Tasks</a>
-    <button (click)="logout()">Logout</button>
-  </ng-container>
+  <div class="app-title">Task Manager</div>
+  <div class="nav-links">
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+      <a routerLink="/register" routerLinkActive="active">Register</a>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a routerLink="/dashboard" routerLinkActive="active">My Tasks</a>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </ng-container>
+  </div>
 </nav>
-<router-outlet></router-outlet>
+<div class="app-container">
+  <router-outlet></router-outlet>
+</div>
